@@ -32,8 +32,8 @@ class LP_User_Items_DB extends LP_Database {
 	 *
 	 * @return object
 	 */
-	public function get_course_items_by_user_item_id( $user_item_id_by_course_id = 0, $user_id = 0 ) {
-		if ( empty( $user_item_id_by_course_id ) || empty( $user_id ) ) {
+	public function get_course_items_by_user_item_id( $user_item_id_by_course_id ) {
+		if ( empty( $user_item_id_by_course_id ) ) {
 			return null;
 		}
 
@@ -42,7 +42,7 @@ class LP_User_Items_DB extends LP_Database {
 		 *
 		 * Please clear cache when user action vs item. Ex: completed lesson, quiz. Start quiz...
 		 */
-		$course_items = wp_cache_get( 'lp-course-items-' . $user_id . '-' . $user_item_id_by_course_id,
+		$course_items = wp_cache_get( 'lp-course-items-' . $user_item_id_by_course_id,
 			'lp-user-course-items' );
 
 		if ( ! $course_items ) {
@@ -50,14 +50,13 @@ class LP_User_Items_DB extends LP_Database {
 			SELECT * FROM wp_learnpress_user_items
 			WHERE parent_id = %d
 			AND ref_type = %s
-			AND user_id = %d
 			GROUP BY user_item_id ASC;
-		", $user_item_id_by_course_id, LP_COURSE_CPT, $user_id );
+		", $user_item_id_by_course_id, LP_COURSE_CPT );
 
 			$course_items = $this->wpdb->get_results( $query );
 
 			//Set cache
-			wp_cache_set( 'lp-course-items-' . $user_id . '-' . $user_item_id_by_course_id, $course_items,
+			wp_cache_set( 'lp-course-items-' . $user_item_id_by_course_id, $course_items,
 				'lp-user-course-items' );
 		}
 
